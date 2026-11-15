@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SONARA</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f5fa;--card:#fff;--text:#171a33;--muted:#6a6e8a;--accent:#e8960c;--on:#1b1200;--line:#dfe1ee;--hover:#eaecf6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#141730;--card:#1d2142;--text:#f0f1fa;--muted:#9a9fc4;--accent:#f5b53c;--line:#2b3060;--hover:#252a54;color-scheme:dark}}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Hind Siliguri','Noto Sans Bengali',system-ui,sans-serif;padding-bottom:120px;line-height:1.45}
+header{position:sticky;top:0;background:var(--bg);z-index:5;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.wrap{max-width:720px;margin:0 auto}
+.logo{font-size:24px;font-weight:700;letter-spacing:.14em;display:flex;align-items:center;gap:10px}
+.logo i{width:12px;height:12px;border-radius:50%;background:var(--accent)}
+input[type=search],input[type=text],input[type=email],input[type=password]{width:100%;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;margin-top:10px}
+nav,.chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px}
+.chips{margin:0 0 10px}
+button{font:inherit;color:inherit}
+nav button,.chip,.btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 16px;white-space:nowrap;cursor:pointer}
+.btn{background:var(--accent);color:var(--on);border-color:var(--accent);font-weight:600;padding:9px 22px;margin-top:12px}
+.on{background:var(--accent)!important;color:var(--on)!important;border-color:var(--accent)!important}
+main{padding:14px 16px}
+.row{display:flex;align-items:center;gap:12px;padding:8px;border-radius:12px;cursor:pointer}
+.row:hover,.row.cur{background:var(--hover)}
+.cov{width:48px;height:48px;border-radius:10px;flex:none;display:grid;place-items:center;color:#fff;font-size:20px}
+.meta{flex:1;min-width:0}
+.t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s{color:var(--muted);font-size:13px}
+.tag{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 8px;margin-left:6px}
+.ib{border:0;background:none;color:var(--muted);font-size:20px;cursor:pointer;padding:6px;min-width:36px}
+.ib.liked{color:#e11d48}
+.player{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));z-index:6}
+.top{display:flex;align-items:center;gap:12px}
+.play{width:44px;height:44px;border-radius:50%;background:var(--accent);color:var(--on);border:0;font-size:18px;cursor:pointer}
+.seek{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:6px}
+input[type=range]{flex:1;accent-color:var(--accent)}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:flex;align-items:flex-end}
+.sheet>div{background:var(--card);width:100%;max-width:720px;margin:0 auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.sheet button{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:12px 4px;cursor:pointer}
+form label{display:block;margin:12px 0 4px;font-size:14px;color:var(--muted)}
+form input{margin:0!important}
+form input[type=file]{width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#fp{position:fixed;inset:0;z-index:30;color:#fff;overflow:auto;background:#1a1a22}
+#fbg{position:absolute;inset:-40px;filter:blur(36px) brightness(.5)}
+.fwrap{position:relative;max-width:480px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px));min-height:100%;display:flex;flex-direction:column;justify-content:space-between;gap:18px}
+.fhead{display:flex;align-items:center;justify-content:space-between}
+.fcov{width:100%;aspect-ratio:1;border-radius:14px;display:grid;place-items:center;font-size:72px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.frow{display:flex;align-items:center;gap:12px}
+.ft{font-size:22px;font-weight:700;line-height:1.3}
+.fctl{display:flex;align-items:center;justify-content:space-between}
+.fctl .ib{font-size:26px}
+.fplay{width:70px;height:70px;border-radius:50%;background:#fff;color:#111;border:0;font-size:26px;cursor:pointer}
+#fp .s,#fp .ib,#fp .seek{color:rgba(255,255,255,.75)}
+#fp .ib.liked{color:#ff4d6d}
+#fp .ib.act{color:var(--accent)}
+#pc,.meta[data-a]{cursor:pointer}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="logo"><i></i>SONARA</div>
+<input id="q" type="search" placeholder="গান, শিল্পী বা জনরা খুঁজুন">
+<nav id="nav"></nav>
+</div></header>
+<main class="wrap" id="main"></main>
+<div class="player"><div class="wrap">
+<div class="top">
+<div class="cov" id="pc" data-a="full" style="background:var(--hover);color:var(--muted)">♪</div>
+<div class="meta" data-a="full"><div class="t" id="pt">কোনো গান বাজছে না</div><div class="s" id="pa">একটি গান বেছে নিন</div></div>
+<button class="ib" data-a="prev" aria-label="আগের গান">⏮&#xFE0E;</button>
+<button class="play" id="pp" data-a="toggle" aria-label="চালান বা থামান">▶&#xFE0E;</button>
+<button class="ib" data-a="next" aria-label="পরের গান">⏭&#xFE0E;</button>
+</div>
+<div class="seek"><span id="ct">0:00</span><input type="range" id="sk" min="0" max="1000" value="0" aria-label="সময়"><span id="dt">0:00</span></div>
+</div></div>
+<div id="fp" hidden><div id="fbg"></div><div class="fwrap">
+<div class="fhead"><button class="ib" data-a="fclose" aria-label="বন্ধ করুন">▾</button><div class="s">এখন বাজছে</div><span style="width:36px"></span></div>
+<div class="fcov" id="fcov"></div>
+<div class="frow"><div class="meta"><div class="ft" id="ft"></div><div class="s" id="fa"></div></div><button class="ib" id="fl" data-a="likecur" aria-label="পছন্দ করুন">♡</button></div>
+<div><input type="range" id="fsk" min="0" max="1000" value="0" style="width:100%" aria-label="সময়"><div class="seek" style="justify-content:space-between"><span id="fct">0:00</span><span id="fdt">0:00</span></div></div>
+<div class="fctl"><button class="ib" id="fsh" data-a="shuf" aria-label="শাফল">⇄</button><button class="ib" data-a="prev" aria-label="আগের গান">⏮&#xFE0E;</button><button class="fplay" id="fpp" data-a="toggle" aria-label="চালান বা থামান">▶&#xFE0E;</button><button class="ib" data-a="next" aria-label="পরের গান">⏭&#xFE0E;</button><button class="ib" id="frp" data-a="rep" aria-label="রিপিট">↻</button></div>
+</div></div>
+<div id="sheet"></div>
+<audio id="au" preload="none"></audio>
+<script>window.SONARA_CONFIG={url:"https://gulexkjpqkwusmcpsktv.supabase.co",key:"sb_publishable_AxpQcFOGa3G8ZjkXLeTPJA_ucrfBN-6"};</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.1"></script>
+<script>
+const $=s=>document.querySelector(s),au=$('#au');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cfg=window.SONARA_CONFIG||{};
+const ready=!!(cfg.url&&cfg.key&&!cfg.url.includes('YOUR'));
+const sb=ready?supabase.createClient(cfg.url,cfg.key):null;
+let songs=[],session=null,loaded=false,loadErr='',shuf=false,rep=0;
+let S={liked:[],pls:[]},view='all',genre='সব',query='',openPl=null,q=[],cur=null,sheet=null,drag=false;
+try{Object.assign(S,JSON.parse(localStorage.getItem('sonara')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('sonara',JSON.stringify(S))}catch(e){}};
+const tg=(a,x)=>{const i=a.indexOf(x);i<0?a.push(x):a.splice(i,1)};
+const byId=id=>songs.find(t=>t.id===id);
+const hue=t=>[...t.id].reduce((a,c)=>a+c.charCodeAt(0),0)%360;
+const bg=t=>`linear-gradient(135deg,hsl(${hue(t)} 65% 52%),hsl(${(hue(t)+50)%360} 65% 32%))`;
+const urlOf=t=>sb.storage.from('songs').getPublicUrl(t.audio_path).data.publicUrl;
+const coverUrl=t=>sb.storage.from('songs').getPublicUrl(t.cover_path).data.publicUrl;
+const covStyle=t=>t.cover_path?`background:url('${coverUrl(t)}') center/cover`:`background:${bg(t)}`;
+const fmt=s=>isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:00';
+async function load(){
+ if(!sb)return;
+ const {data,error}=await sb.from('songs').select('*').order('created_at',{ascending:false});
+ loadErr=error?error.message:'';songs=data||[];loaded=true;render();
+}
+const rowH=t=>`<div class="row${cur===t.id?' cur':''}" data-a="play" data-id="${t.id}"><div class="cov" style="${covStyle(t)}">${t.cover_path?'':(cur===t.id&&!au.paused?'♫':'♪')}</div><div class="meta"><div class="t">${esc(t.title)}</div><div class="s">${esc(t.artist)}<span class="tag">${esc(t.genre)}</span></div></div><button class="ib${S.liked.includes(t.id)?' liked':''}" data-a="like" data-id="${t.id}" aria-label="পছন্দ করুন">${S.liked.includes(t.id)?'♥':'♡'}</button><button class="ib" data-a="add" data-id="${t.id}" aria-label="প্লেলিস্টে যোগ করুন">＋</button>${session?`<button class="ib" data-a="del" data-id="${t.id}" aria-label="মুছুন">✕</button>`:''}</div>`;
+const list=(a,empty)=>{q=a.map(t=>t.id);return a.length?a.map(rowH).join(''):`<p class="s">${empty}</p>`};
+function upHtml(){
+ if(!session)return `<form id="lf"><b>মালিকের লগইন</b><label>ইমেইল</label><input type="email" id="le" required><label>পাসওয়ার্ড</label><input type="password" id="lp" required><p class="s" id="um"></p><button class="btn" type="submit">লগইন</button></form>`;
+ return `<form id="uf"><label>গানের নাম</label><input type="text" id="ut" required><label>শিল্পী</label><input type="text" id="ua" required><label>জনরা</label><input type="text" id="ug" placeholder="যেমন: বাংলা, রক"><label>অডিও ফাইল (MP3 বা M4A)</label><input type="file" id="uf2" accept="audio/*" required><label>কভার ছবি (ঐচ্ছিক)</label><input type="file" id="ucv" accept="image/*"><label style="display:flex;gap:8px;align-items:flex-start;color:var(--text)"><input type="checkbox" id="ur" required style="width:auto;margin-top:6px!important">আমি এই গানের অধিকারধারী, অথবা প্রকাশের অনুমতি আমার আছে।</label><p class="s" id="um"></p><button class="btn" type="submit">আপলোড করুন</button> <button class="chip" type="button" data-a="out">লগআউট</button></form>`;
+}
+function render(){
+ $('#nav').innerHTML=[['all','হোম'],['liked','পছন্দের'],['pl','প্লেলিস্ট'],['up','আপলোড']].map(([k,l])=>`<button class="${view===k?'on':''}" data-a="nav" data-id="${k}">${l}</button>`).join('');
+ const m=$('#main'),term=query.trim().toLowerCase(),match=t=>!term||(t.title+t.artist+t.genre).toLowerCase().includes(term);
+ if(!ready){m.innerHTML='<p class="s">config.js ফাইলে Supabase-এর URL ও key বসান। বিস্তারিত README-তে।</p>';return}
+ if(view==='all'){
+  const gs=['সব',...new Set(songs.map(t=>t.genre))];
+  m.innerHTML=(loadErr?`<p class="s">লোড করা যায়নি: ${esc(loadErr)}</p>`:'')+`<div class="chips">${gs.map(g=>`<button class="chip${g===genre?' on':''}" data-a="genre" data-id="${esc(g)}">${esc(g)}</button>`).join('')}</div>`+list(songs.filter(t=>match(t)&&(genre==='সব'||t.genre===genre)),loaded?'এখনো কোনো গান নেই।':'লোড হচ্ছে…');
+ }else if(view==='liked'){
+  m.innerHTML=list(songs.filter(t=>S.liked.includes(t.id)&&match(t)),'এখনো কোনো গান পছন্দ করা হয়নি। গানের পাশের ♡ চাপুন।');
+ }else if(view==='pl'){
+  const p=S.pls.find(x=>x.id===openPl);
+  m.innerHTML=p?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><button class="chip" data-a="back">← পেছনে</button><b style="flex:1">${esc(p.name)}</b><button class="chip" data-a="delpl" data-id="${p.id}">মুছুন</button></div>`+list(p.ids.map(byId).filter(Boolean),'এই প্লেলিস্টে গান নেই। গানের পাশের ＋ চাপুন।')
+  :`<div style="display:flex;gap:8px;align-items:center"><input type="text" id="pn" placeholder="নতুন প্লেলিস্টের নাম" style="margin:0"><button class="btn" data-a="newpl" style="margin:0">তৈরি করুন</button></div><div style="margin-top:12px">${S.pls.length?S.pls.map(p=>`<div class="row" data-a="openpl" data-id="${p.id}"><div class="cov" style="background:var(--accent);color:var(--on)">≡</div><div class="meta"><div class="t">${esc(p.name)}</div><div class="s">${p.ids.filter(byId).length}টি গান</div></div></div>`).join(''):'<p class="s">কোনো প্লেলিস্ট নেই। নাম দিয়ে প্রথমটি তৈরি করুন।</p>'}</div>`;
+ }else m.innerHTML=upHtml();
+}
+function showSheet(){
+ $('#sheet').innerHTML=sheet?`<div class="sheet" data-a="close"><div data-a="noop"><b>প্লেলিস্টে যোগ করুন</b>${S.pls.map(p=>`<button data-a="addto" data-id="${p.id}">${esc(p.name)}${p.ids.includes(sheet)?' ✓':''}</button>`).join('')}<button data-a="newadd">＋ নতুন প্লেলিস্ট</button></div></div>`:'';
+}
+function info(){
+ $('#pp').textContent=au.paused?'▶\uFE0E':'⏸\uFE0E';
+ const t=byId(cur);if(t){$('#pt').textContent=t.title;$('#pa').textContent=t.artist;$('#pc').style.cssText=covStyle(t)+';color:#fff';$('#pc').textContent=t.cover_path?'':'♪';
+  try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.cover_path?[{src:coverUrl(t),sizes:'640x640',type:'image/jpeg'}]:[]})}catch(e){}}
+ if(view!=='up')render();fsync();
+}
+function play(id){
+ const t=byId(id);if(!t)return;
+ if(cur===id){au.paused?au.play():au.pause();return}
+ cur=id;au.src=urlOf(t);au.play().catch(()=>{});info();
+}
+const step=d=>{if(!q.length)return;let n;if(shuf&&q.length>1){do{n=q[Math.floor(Math.random()*q.length)]}while(n===cur)}else{const i=q.indexOf(cur);n=q[i<0?0:(i+d+q.length)%q.length]}cur=null;play(n)};
+function fsync(){
+ const t=byId(cur);if(!t)return;
+ $('#ft').textContent=t.title;$('#fa').textContent=t.artist;
+ const c=$('#fcov');c.style.cssText=covStyle(t);c.textContent=t.cover_path?'':'♪';
+ $('#fbg').style.cssText=covStyle(t);
+ const lk=S.liked.includes(t.id);$('#fl').textContent=lk?'♥':'♡';$('#fl').classList.toggle('liked',lk);
+ $('#fpp').textContent=au.paused?'▶\uFE0E':'⏸\uFE0E';
+ $('#fsh').classList.toggle('act',shuf);$('#frp').classList.toggle('act',rep>0);$('#frp').textContent=rep===2?'↻¹':'↻';
+}
+const squareJpeg=f=>new Promise((ok,no)=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const m=Math.min(im.width,im.height),c=document.createElement('canvas');c.width=c.height=640;c.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,640,640);URL.revokeObjectURL(u);c.toBlob(b=>b?ok(b):no(new Error('ছবি প্রসেস হয়নি')),'image/jpeg',.85)};im.onerror=()=>no(new Error('ছবি পড়া যায়নি'));im.src=u});
+const A={
+ play,
+ like:id=>{tg(S.liked,id);save();render()},
+ add:id=>{sheet=id;showSheet()},
+ nav:id=>{view=id;openPl=null;render()},
+ genre:id=>{genre=id;render()},
+ newpl:()=>{const n=$('#pn').value.trim();if(!n)return;S.pls.push({id:'p'+Date.now(),name:n,ids:[]});save();render()},
+ openpl:id=>{openPl=id;render()},
+ back:()=>{openPl=null;render()},
+ delpl:id=>{S.pls=S.pls.filter(p=>p.id!==id);openPl=null;save();render()},
+ close:()=>{sheet=null;showSheet()},
+ addto:id=>{tg(S.pls.find(p=>p.id===id).ids,sheet);save();showSheet()},
+ newadd:()=>{S.pls.push({id:'p'+Date.now(),name:'প্লেলিস্ট '+(S.pls.length+1),ids:[sheet]});save();showSheet()},
+ toggle:()=>cur?(au.paused?au.play():au.pause()):(q[0]&&play(q[0])),
+ prev:()=>step(-1),next:()=>step(1),noop:()=>{},
+ full:()=>{if(cur){$('#fp').hidden=false;fsync()}},
+ fclose:()=>{$('#fp').hidden=true},
+ shuf:()=>{shuf=!shuf;fsync()},
+ rep:()=>{rep=(rep+1)%3;fsync()},
+ likecur:()=>{A.like(cur);fsync()},
+ out:()=>sb.auth.signOut(),
+ del:async id=>{
+  const t=byId(id);if(!t||!confirm('গানটি মুছে ফেলবেন?'))return;
+  const r=await sb.from('songs').delete().eq('id',id);
+  if(r.error){alert('মোছা যায়নি: '+r.error.message);return}
+  await sb.storage.from('songs').remove(t.cover_path?[t.audio_path,t.cover_path]:[t.audio_path]);
+  if(cur===id){au.pause();cur=null}
+  load();
+ }
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a])A[el.dataset.a](el.dataset.id)});
+document.addEventListener('submit',async e=>{
+ e.preventDefault();const m=$('#um');
+ if(e.target.id==='lf'){
+  const r=await sb.auth.signInWithPassword({email:$('#le').value.trim(),password:$('#lp').value});
+  if(r.error)m.textContent='লগইন হয়নি: ইমেইল বা পাসওয়ার্ড ভুল।';
+ }else if(e.target.id==='uf'){
+  const f=$('#uf2').files[0];if(!f)return;
+  m.textContent='আপলোড হচ্ছে…';
+  const ext=((f.name.split('.').pop()||'mp3')+'').toLowerCase().replace(/[^a-z0-9]/g,'')||'mp3';
+  const path=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+  const up=await sb.storage.from('songs').upload(path,f,{contentType:f.type||'audio/mpeg'});
+  if(up.error){m.textContent='আপলোড হয়নি: '+up.error.message;return}
+  let cover=null;const cf=$('#ucv').files[0];
+  if(cf){try{const cb=await squareJpeg(cf);cover='covers/'+path.replace(/\.[^.]+$/,'')+'.jpg';const cu=await sb.storage.from('songs').upload(cover,cb,{contentType:'image/jpeg'});if(cu.error)throw cu.error}catch(er){await sb.storage.from('songs').remove([path]);m.textContent='কভার আপলোড হয়নি: '+(er.message||er);return}}
+  const row={title:$('#ut').value.trim(),artist:$('#ua').value.trim(),genre:$('#ug').value.trim()||'অন্যান্য',audio_path:path};if(cover)row.cover_path=cover;
+  const ins=await sb.from('songs').insert(row);
+  if(ins.error){await sb.storage.from('songs').remove(cover?[path,cover]:[path]);m.textContent='সেভ হয়নি: '+ins.error.message;return}
+  view='all';genre='সব';load();
+ }
+});
+$('#q').addEventListener('input',e=>{query=e.target.value;if(view==='up'||view==='pl'){view='all';openPl=null}render()});
+au.addEventListener('play',info);au.addEventListener('pause',info);
+au.addEventListener('ended',()=>{if(rep===2){au.currentTime=0;au.play();return}if(rep===0&&!shuf&&q.indexOf(cur)===q.length-1)return;step(1)});
+const tick=()=>{const p=au.duration?au.currentTime/au.duration*1000:0;if(!drag){$('#sk').value=p;$('#fsk').value=p}$('#ct').textContent=$('#fct').textContent=fmt(au.currentTime);$('#dt').textContent=$('#fdt').textContent=fmt(au.duration)};
+au.addEventListener('timeupdate',tick);au.addEventListener('loadedmetadata',tick);
+['#sk','#fsk'].forEach(id=>{$(id).addEventListener('input',e=>{drag=true;if(au.duration)au.currentTime=e.target.value/1000*au.duration});$(id).addEventListener('change',()=>{drag=false})});
+
+if(sb){
+ sb.auth.getSession().then(({data})=>{session=data.session;render()});
+ sb.auth.onAuthStateChange((_e,s)=>{const was=!!session;session=s;if(was!==!!s)render()});
+ load();
+}
+try{const ms=navigator.mediaSession;ms.setActionHandler('play',()=>au.play());ms.setActionHandler('pause',()=>au.pause());ms.setActionHandler('previoustrack',()=>step(-1));ms.setActionHandler('nexttrack',()=>step(1))}catch(e){}
+render();
+</script>
+</body>
+</html>
