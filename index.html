@@ -81,13 +81,13 @@ form input[type=file]{width:100%}
 <div id="fp" hidden><div id="fbg"></div><div class="fwrap">
 <div class="fhead"><button class="ib" data-a="fclose" aria-label="বন্ধ করুন">▾</button><div class="s">এখন বাজছে</div><span style="width:36px"></span></div>
 <div class="fcov" id="fcov"></div>
-<div class="frow"><div class="meta"><div class="ft" id="ft"></div><div class="s" id="fa"></div></div><button class="ib" id="fl" data-a="likecur" aria-label="পছন্দ করুন">♡</button></div>
+<div class="frow"><div class="meta"><div class="ft" id="ft"></div><div class="s" id="fa"></div><div class="s" id="flic"></div></div><button class="ib" id="fl" data-a="likecur" aria-label="পছন্দ করুন">♡</button></div>
 <div><input type="range" id="fsk" min="0" max="1000" value="0" style="width:100%" aria-label="সময়"><div class="seek" style="justify-content:space-between"><span id="fct">0:00</span><span id="fdt">0:00</span></div></div>
 <div class="fctl"><button class="ib" id="fsh" data-a="shuf" aria-label="শাফল">⇄</button><button class="ib" data-a="prev" aria-label="আগের গান">⏮&#xFE0E;</button><button class="fplay" id="fpp" data-a="toggle" aria-label="চালান বা থামান">▶&#xFE0E;</button><button class="ib" data-a="next" aria-label="পরের গান">⏭&#xFE0E;</button><button class="ib" id="frp" data-a="rep" aria-label="রিপিট">↻</button></div>
 </div></div>
 <div id="sheet"></div>
 <audio id="au" preload="none"></audio>
-<script>window.SONARA_CONFIG={url:"https://gulexkjpqkwusmcpsktv.supabase.co",key:"sb_publishable_AxpQcFOGa3G8ZjkXLeTPJA_ucrfBN-6",phone:false};</script>
+<script>window.SONARA_CONFIG={url:"https://gulexkjpqkwusmcpsktv.supabase.co",key:"sb_publishable_AxpQcFOGa3G8ZjkXLeTPJA_ucrfBN-6",phone:false,jamendo:"8cb42487"};</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.1"></script>
 <script>
 const $=s=>document.querySelector(s),au=$('#au');
@@ -100,19 +100,20 @@ let S={liked:[],pls:[]},view='all',genre='সব',query='',openPl=null,q=[],cur=
 try{Object.assign(S,JSON.parse(localStorage.getItem('sonara')||'{}'))}catch(e){}
 const save=()=>{try{localStorage.setItem('sonara',JSON.stringify(S))}catch(e){}};
 const tg=(a,x)=>{const i=a.indexOf(x);i<0?a.push(x):a.splice(i,1)};
-const byId=id=>songs.find(t=>t.id===id);
+const jc={};const byId=id=>songs.find(t=>t.id===id)||jc[id];
 const hue=t=>[...t.id].reduce((a,c)=>a+c.charCodeAt(0),0)%360;
 const bg=t=>`linear-gradient(135deg,hsl(${hue(t)} 65% 52%),hsl(${(hue(t)+50)%360} 65% 32%))`;
-const urlOf=t=>sb.storage.from('songs').getPublicUrl(t.audio_path).data.publicUrl;
+const urlOf=t=>t.src||sb.storage.from('songs').getPublicUrl(t.audio_path).data.publicUrl;
 const coverUrl=t=>sb.storage.from('songs').getPublicUrl(t.cover_path).data.publicUrl;
-const covStyle=t=>t.cover_path?`background:url('${coverUrl(t)}') center/cover`:`background:${bg(t)}`;
+const coverOf=t=>t.cover||(t.cover_path?coverUrl(t):'');
+const covStyle=t=>coverOf(t)?`background:url('${coverOf(t)}') center/cover`:`background:${bg(t)}`;
 const fmt=s=>isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:00';
 async function load(){
  if(!sb)return;
  const {data,error}=await sb.from('songs').select('*').order('created_at',{ascending:false});
  loadErr=error?error.message:'';songs=data||[];loaded=true;render();
 }
-const rowH=t=>`<div class="row${cur===t.id?' cur':''}" data-a="play" data-id="${t.id}"><div class="cov" style="${covStyle(t)}">${t.cover_path?'':(cur===t.id&&!au.paused?'♫':'♪')}</div><div class="meta"><div class="t">${esc(t.title)}</div><div class="s">${esc(t.artist)}<span class="tag">${esc(t.genre)}</span></div></div><button class="ib${favs.includes(t.id)?' liked':''}" data-a="like" data-id="${t.id}" aria-label="পছন্দ করুন">${favs.includes(t.id)?'♥':'♡'}</button><button class="ib" data-a="add" data-id="${t.id}" aria-label="প্লেলিস্টে যোগ করুন">＋</button>${isOwner?`<button class="ib" data-a="del" data-id="${t.id}" aria-label="মুছুন">✕</button>`:''}</div>`;
+const rowH=t=>t.j?jRow(t):`<div class="row${cur===t.id?' cur':''}" data-a="play" data-id="${t.id}"><div class="cov" style="${covStyle(t)}">${coverOf(t)?'':(cur===t.id&&!au.paused?'♫':'♪')}</div><div class="meta"><div class="t">${esc(t.title)}</div><div class="s">${esc(t.artist)}<span class="tag">${esc(t.genre)}</span></div></div><button class="ib${favs.includes(t.id)?' liked':''}" data-a="like" data-id="${t.id}" aria-label="পছন্দ করুন">${favs.includes(t.id)?'♥':'♡'}</button><button class="ib" data-a="add" data-id="${t.id}" aria-label="প্লেলিস্টে যোগ করুন">＋</button>${isOwner?`<button class="ib" data-a="del" data-id="${t.id}" aria-label="মুছুন">✕</button>`:''}</div>`;
 const list=(a,empty)=>{q=a.map(t=>t.id);return a.length?a.map(rowH).join(''):`<p class="s">${empty}</p>`};
 function upHtml(){
  return `<form id="uf"><label>গানের নাম</label><input type="text" id="ut" required><label>শিল্পী</label><input type="text" id="ua" required><label>জনরা</label><input type="text" id="ug" placeholder="যেমন: বাংলা, রক"><label>অডিও ফাইল (MP3 বা M4A)</label><input type="file" id="uf2" accept="audio/*" required><label>কভার ছবি (ঐচ্ছিক)</label><input type="file" id="ucv" accept="image/*"><label style="display:flex;gap:8px;align-items:flex-start;color:var(--text)"><input type="checkbox" id="ur" required style="width:auto;margin-top:6px!important">আমি এই গানের অধিকারধারী, অথবা প্রকাশের অনুমতি আমার আছে।</label><p class="s msg" id="um"></p><button class="btn" type="submit">আপলোড করুন</button> <button class="chip" type="button" data-a="out">লগআউট</button></form>`;
@@ -134,8 +135,37 @@ function accHtml(){
  return `<p class="s">${esc(accMsg||'লগইন করলে পছন্দের গান সব ডিভাইসে পাবেন।')}</p><button class="btn" data-a="google" style="margin-top:0">Google দিয়ে লগইন</button>${ph}<details style="margin-top:20px"><summary class="s">মালিকের ইমেইল লগইন</summary><form id="lf"><label>ইমেইল</label><input type="email" id="le" required><label>পাসওয়ার্ড</label><input type="password" id="lp" required><p class="s msg"></p><button class="btn" type="submit">লগইন</button></form></details>`;
 }
 function applyTheme(t){document.documentElement.dataset.theme=t;$('#thm').textContent=t==='dark'?'☀︎':'☾';try{localStorage.setItem('sonara-theme',t)}catch(e){}}
+let jl=[],jMode='hot',jBusy=false,jErr='',jQ='',jT=null;
+const jRow=t=>`<div class="row${cur===t.id?' cur':''}" data-a="play" data-id="${t.id}"><div class="cov" style="${covStyle(t)}">${coverOf(t)?'':'♪'}</div><div class="meta"><div class="t">${esc(t.title)}</div><div class="s">${esc(t.artist)}<span class="tag">Jamendo</span></div></div>${/^https?:/.test(t.lic)?`<a class="ib" data-a="noop" href="${esc(t.lic)}" target="_blank" rel="noopener" aria-label="লাইসেন্স" style="font-size:12px;text-decoration:none">CC</a>`:''}</div>`;
+async function jload(){
+ if(!cfg.jamendo){render();return}
+ jBusy=true;jErr='';render();
+ const p=new URLSearchParams({client_id:cfg.jamendo,format:'json',limit:'30',audioformat:'mp32'});
+ const w=jQ.trim();
+ if(w)p.set('search',w);
+ else if(jMode==='new')p.set('order','releasedate_desc');
+ else{p.set('order','popularity_week');if(jMode!=='hot')p.set('tags',jMode)}
+ try{
+  const r=await fetch('https://api.jamendo.com/v3.0/tracks/?'+p);
+  const d=await r.json();
+  if(d.headers&&d.headers.status!=='success')throw new Error(d.headers.error_message||'অজানা ত্রুটি');
+  const ok=u=>/^https:\/\/[^'"\s]+$/.test(u||'')?u:'';
+  jl=(d.results||[]).filter(x=>ok(x.audio)).map(x=>({id:'j'+x.id,title:x.name,artist:x.artist_name,genre:'Jamendo',src:x.audio,cover:ok(x.image)||ok(x.album_image),lic:x.license_ccurl||'',j:1}));
+  jl.forEach(t=>{jc[t.id]=t});
+ }catch(e){jErr=String(e.message||e)}
+ jBusy=false;render();
+}
+function discHtml(){
+ const chips=[['hot','ট্রেন্ডিং'],['new','নতুন'],['rock','রক'],['pop','পপ'],['electronic','ইলেকট্রনিক'],['folk','লোক'],['classical','ক্লাসিক্যাল'],['jazz','জ্যাজ']];
+ const head='<p class="s">Jamendo-র Creative Commons গান। প্রতিটি গানের লাইসেন্স (CC) পাশে দেওয়া আছে, ব্যবহারের আগে দেখে নিন।</p>';
+ if(!cfg.jamendo)return head+'<p class="s">Jamendo Client ID এখনো বসানো হয়নি।</p>';
+ const c=`<div class="chips">${chips.map(([k,l])=>`<button class="chip${!jQ.trim()&&jMode===k?' on':''}" data-a="jmode" data-id="${k}">${l}</button>`).join('')}</div>`;
+ if(jBusy)return head+c+'<p class="s">লোড হচ্ছে…</p>';
+ if(jErr)return head+c+`<p class="s">লোড করা যায়নি: ${esc(jErr)}</p>`;
+ return head+c+list(jl,'কোনো গান পাওয়া যায়নি।');
+}
 function render(){
- $('#nav').innerHTML=[['all','হোম'],['liked','পছন্দের'],['pl','প্লেলিস্ট'],['acc','অ্যাকাউন্ট'],...(isOwner?[['up','আপলোড']]:[])].map(([k,l])=>`<button class="${view===k?'on':''}" data-a="nav" data-id="${k}">${l}</button>`).join('');
+ $('#nav').innerHTML=[['all','হোম'],['disc','আবিষ্কার'],['liked','পছন্দের'],['pl','প্লেলিস্ট'],['acc','অ্যাকাউন্ট'],...(isOwner?[['up','আপলোড']]:[])].map(([k,l])=>`<button class="${view===k?'on':''}" data-a="nav" data-id="${k}">${l}</button>`).join('');
  const m=$('#main'),term=query.trim().toLowerCase(),match=t=>!term||(t.title+t.artist+t.genre).toLowerCase().includes(term);
  if(!ready){m.innerHTML='<p class="s">config.js ফাইলে Supabase-এর URL ও key বসান। বিস্তারিত README-তে।</p>';return}
  if(view==='all'){
@@ -147,15 +177,15 @@ function render(){
   const p=S.pls.find(x=>x.id===openPl);
   m.innerHTML=p?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><button class="chip" data-a="back">← পেছনে</button><b style="flex:1">${esc(p.name)}</b><button class="chip" data-a="delpl" data-id="${p.id}">মুছুন</button></div>`+list(p.ids.map(byId).filter(Boolean),'এই প্লেলিস্টে গান নেই। গানের পাশের ＋ চাপুন।')
   :`<div style="display:flex;gap:8px;align-items:center"><input type="text" id="pn" placeholder="নতুন প্লেলিস্টের নাম" style="margin:0"><button class="btn" data-a="newpl" style="margin:0">তৈরি করুন</button></div><div style="margin-top:12px">${S.pls.length?S.pls.map(p=>`<div class="row" data-a="openpl" data-id="${p.id}"><div class="cov" style="background:var(--accent);color:var(--on)">≡</div><div class="meta"><div class="t">${esc(p.name)}</div><div class="s">${p.ids.filter(byId).length}টি গান</div></div></div>`).join(''):'<p class="s">কোনো প্লেলিস্ট নেই। নাম দিয়ে প্রথমটি তৈরি করুন।</p>'}</div>`;
- }else if(view==='acc')m.innerHTML=accHtml();else m.innerHTML=upHtml();
+ }else if(view==='acc')m.innerHTML=accHtml();else if(view==='disc')m.innerHTML=discHtml();else m.innerHTML=upHtml();
 }
 function showSheet(){
  $('#sheet').innerHTML=sheet?`<div class="sheet" data-a="close"><div data-a="noop"><b>প্লেলিস্টে যোগ করুন</b>${S.pls.map(p=>`<button data-a="addto" data-id="${p.id}">${esc(p.name)}${p.ids.includes(sheet)?' ✓':''}</button>`).join('')}<button data-a="newadd">＋ নতুন প্লেলিস্ট</button></div></div>`:'';
 }
 function info(){
  $('#pp').textContent=au.paused?'▶\uFE0E':'⏸\uFE0E';
- const t=byId(cur);if(t){$('#pt').textContent=t.title;$('#pa').textContent=t.artist;$('#pc').style.cssText=covStyle(t)+';color:#fff';$('#pc').textContent=t.cover_path?'':'♪';
-  try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.cover_path?[{src:coverUrl(t),sizes:'640x640',type:'image/jpeg'}]:[]})}catch(e){}}
+ const t=byId(cur);if(t){$('#pt').textContent=t.title;$('#pa').textContent=t.artist;$('#pc').style.cssText=covStyle(t)+';color:#fff';$('#pc').textContent=coverOf(t)?'':'♪';
+  try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:coverOf(t)?[{src:coverOf(t),sizes:'640x640',type:'image/jpeg'}]:[]})}catch(e){}}
  if(view!=='up'&&view!=='acc')render();fsync();
 }
 function play(id){
@@ -167,9 +197,10 @@ const step=d=>{if(!q.length)return;let n;if(shuf&&q.length>1){do{n=q[Math.floor(
 function fsync(){
  const t=byId(cur);if(!t)return;
  $('#ft').textContent=t.title;$('#fa').textContent=t.artist;
- const c=$('#fcov');c.style.cssText=covStyle(t);c.textContent=t.cover_path?'':'♪';
+ $('#flic').innerHTML=t.j&&/^https?:/.test(t.lic)?`<a href="${esc(t.lic)}" target="_blank" rel="noopener" style="color:inherit">Jamendo · CC লাইসেন্স</a>`:'';
+ const c=$('#fcov');c.style.cssText=covStyle(t);c.textContent=coverOf(t)?'':'♪';
  $('#fbg').style.cssText=covStyle(t);
- const lk=favs.includes(t.id);$('#fl').textContent=lk?'♥':'♡';$('#fl').classList.toggle('liked',lk);
+ const lk=favs.includes(t.id);$('#fl').textContent=lk?'♥':'♡';$('#fl').classList.toggle('liked',lk);$('#fl').style.visibility=t.j?'hidden':'visible';
  $('#fpp').textContent=au.paused?'▶\uFE0E':'⏸\uFE0E';
  $('#fsh').classList.toggle('act',shuf);$('#frp').classList.toggle('act',rep>0);$('#frp').textContent=rep===2?'↻¹':'↻';
 }
@@ -184,7 +215,7 @@ const A={
   if(r.error){favs=on?[...favs,id]:favs.filter(x=>x!==id);render();fsync()}
  },
  add:id=>{sheet=id;showSheet()},
- nav:id=>{view=id;openPl=null;render()},
+ nav:id=>{view=id;openPl=null;if(id==='disc'&&!jl.length&&cfg.jamendo)jload();else render()},
  genre:id=>{genre=id;render()},
  newpl:()=>{const n=$('#pn').value.trim();if(!n)return;S.pls.push({id:'p'+Date.now(),name:n,ids:[]});save();render()},
  openpl:id=>{openPl=id;render()},
@@ -201,6 +232,7 @@ const A={
  rep:()=>{rep=(rep+1)%3;fsync()},
  likecur:()=>{A.like(cur);fsync()},
  theme:()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'),
+ jmode:id=>{jMode=id;jQ='';query='';$('#q').value='';jload()},
  google:()=>sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}}),
  out:()=>sb.auth.signOut(),
  del:async id=>{
@@ -237,7 +269,7 @@ document.addEventListener('submit',async e=>{
   view='all';genre='সব';load();
  }
 });
-$('#q').addEventListener('input',e=>{query=e.target.value;if(view==='up'||view==='pl'||view==='acc'){view='all';openPl=null}render()});
+$('#q').addEventListener('input',e=>{query=e.target.value;if(view==='disc'){jQ=query;clearTimeout(jT);jT=setTimeout(jload,500);return}if(view==='up'||view==='pl'||view==='acc'){view='all';openPl=null}render()});
 au.addEventListener('play',info);au.addEventListener('pause',info);
 au.addEventListener('ended',()=>{if(rep===2){au.currentTime=0;au.play();return}if(rep===0&&!shuf&&q.indexOf(cur)===q.length-1)return;step(1)});
 const tick=()=>{const p=au.duration?au.currentTime/au.duration*1000:0;if(!drag){$('#sk').value=p;$('#fsk').value=p}$('#ct').textContent=$('#fct').textContent=fmt(au.currentTime);$('#dt').textContent=$('#fdt').textContent=fmt(au.duration)};
